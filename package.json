@@ -1,0 +1,33 @@
+{
+  "name": "blog-list",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "lint": "eslint .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mateoap00/blog-list.git"
+  },
+  "author": "Pablo Mateo Astudillo Palacio",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mateoap00/blog-list/issues"
+  },
+  "homepage": "https://github.com/Mateoap00/blog-list#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^6.7.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.27.0",
+    "nodemon": "^2.0.20"
+  }
+}
