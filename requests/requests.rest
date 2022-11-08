@@ -6,7 +6,7 @@ GET http://localhost:3003/
 
 ###
 
-GET http://localhost:3003/api/blogs/6361b61f2645a7876a415cae
+GET http://localhost:3003/api/blogs/6369468cb42fd4982fc048ba
 
 ###
 
@@ -14,8 +14,8 @@ POST http://localhost:3003/api/blogs
 content-type: application/json
 
 {
-    "title": "blog 3",
-    "author": "author 3",
-    "url": "www.blog3.com",
-    "likes": "15"
+    "title": "blog 5",
+    "author": "author 5",
+    "url": "www.blog5.com",
+    "likes": "8"
 }
