@@ -1,7 +1,7 @@
 /*
     BLOG LIST APP
 
-    Step 1: Initialize the project installing the necessary npm packages and creating the mongodb schema for the blogs.
+    Exercise 4.1: Initialize the project installing the necessary npm packages and creating the mongodb schema for the blogs.
     Connecting the express app to the database, and defining get and post routes handlers, then testing the routes with
     vs code rest client.
 */
