@@ -6,15 +6,15 @@
     array and then I test it using three unit tests for when blogs is empty, blogs array only has one blog and blogs array has
     multiple blogs.
 
-    Exercise *4.5: Here I used the favoriteBlog function in listHelper to find the blog that has the most likes, I test this
+    Exercise 4.5*: Here I used the favoriteBlog function in listHelper to find the blog that has the most likes, I test this
     with three unit tests for the three same cases as before.
 
-    Exercise *4.6: In this exercise I used the npm package lodash to use the functions groupBy, maxBy, and toArray so I can
+    Exercise 4.6*: In this exercise I used the npm package lodash to use the functions groupBy, maxBy, and toArray so I can
     find the author that has the most blogs between all the blogs posts, for this first I reorder the blogs by author, so each
     author has their own number of blogs, after that I find the author that has the most blogs (length in the new object) and
     return the name of the author and the number of blogs.
 
-    Exercise *4.7: For this exercise I used the mostLikes function defined before to get the total number of likes that a author
+    Exercise 4.7*: For this exercise I used the mostLikes function defined before to get the total number of likes that a author
     has, for this I grouped the blogs by it's authors, then I calculate the sum of all of the blogs and check if that total is
     greater than the one before then that author is the new one with most likes. All tests passed for this function.
 */
