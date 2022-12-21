@@ -28,10 +28,11 @@ const nonExistingId = async () => {
         url: 'www.blogtest.com',
         likes: 15
     });
+
+    const id = blog._id.toString();
     await blog.save();
     await blog.remove();
-
-    return blog._id.toString();
+    return id;
 };
 
 const blogsInDb = async () => {

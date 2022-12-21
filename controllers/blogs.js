@@ -1,6 +1,5 @@
 const blogsRouter = require('express').Router();
 const Blog = require('../models/blog');
-const logger = require('../utils/logger');
 
 // Blogs routes
 blogsRouter.get('/info', (request, response) => {
@@ -20,7 +19,6 @@ blogsRouter.get('/:id', async (request, response, next) => {
     try {
         const blog = await Blog.findById(request.params.id);
         if (blog) {
-            logger.info('Blog found: ', blog);
             response.status(200).json(blog);
         } else {
             response.status(404).end();
@@ -41,7 +39,6 @@ blogsRouter.post('/', async (request, response, next) => {
 
     try {
         const savedBlog = await newBlog.save();
-        logger.info('Blog saved: ', savedBlog);
         response.status(201).json(savedBlog);
     } catch (exception) {
         next(exception);
@@ -50,9 +47,12 @@ blogsRouter.post('/', async (request, response, next) => {
 
 blogsRouter.delete('/:id', async (request, response, next) => {
     try {
-        await Blog.findByIdAndRemove(request.params.id);
-        logger.info('Deleted successfully!');
-        response.status(204).end();
+        const blogDeleted = await Blog.findByIdAndRemove(request.params.id);
+        if (!blogDeleted) {
+            response.status(404).end();
+        } else {
+            response.status(204).end();
+        }
     } catch (exception) {
         next(exception);
     }
@@ -63,9 +63,12 @@ blogsRouter.put('/:id', async (request, response, next) => {
 
     //const opt = { new: true, runValidators: true, context: 'query' };
     try {
-        const updatedNote = await Blog.findByIdAndUpdate(request.params.id, { title, author, url, likes });
-        logger.info('Updated note: ', updatedNote);
-        response.status(200).json(updatedNote);
+        const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, { title, author, url, likes }, { new: true });
+        if (!updatedBlog) {
+            response.status(404).end();
+        } else {
+            response.status(200).json(updatedBlog);
+        }
     } catch (exception) {
         next(exception);
     }
