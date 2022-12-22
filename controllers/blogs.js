@@ -4,21 +4,28 @@
     id to reference when creating the new blog. Also I changed the get route for blogs so it shows the information of the user
     that made the blog post (using .populate), similar for the get route in the users controller, it shows the information of
     all the blogs that the user posted. (Check also files controllers/users.js).
+
+    Exercise 4.19: Here I refactored the blogs post route so it only saves a blog if a authenticated token exists. For this
+    I check in the request object, the authorization header with a helper function (getTokenFrom), this function only returns
+    the token if there's any, if not then returns null, after that in the post route I used the jsonwebtoken package to decode
+    the token (if possible, if not then returns a 401 error status). Once the token is decoded then it checks for the id of
+    the user (so it verifies that the user is logged in), then the route functions as before, looks for the user using it's
+    id and it to references it when creating the new blog.
 */
 
 const blogsRouter = require('express').Router();
 const Blog = require('../models/blog');
 const User = require('../models/user');
-//const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 
 // Get token from authorization header
-// const getTokenFrom = request => {
-//     const authorization = request.get('authorization');
-//     if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-//         return authorization.substring(7);
-//     }
-//     return null;
-// };
+const getTokenFrom = request => {
+    const authorization = request.get('authorization');
+    if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+        return authorization.substring(7);
+    }
+    return null;
+};
 
 // Blogs routes
 blogsRouter.get('/info', (request, response) => {
@@ -50,17 +57,14 @@ blogsRouter.get('/:id', async (request, response, next) => {
 blogsRouter.post('/', async (request, response, next) => {
     const body = request.body;
     try {
-        // const token = getTokenFrom(request);
-        // /* eslint-disable no-undef */
-        // const decodedToken = jwt.verify(token, process.env.SECRET);
+        const token = getTokenFrom(request);
+        /* eslint-disable no-undef */
+        const decodedToken = jwt.verify(token, process.env.SECRET);
+        if (!decodedToken.id) {
+            return response.status(401).json({ error: 'Token missing or invalid' });
+        }
 
-        // if (!decodedToken.id) {
-        //     return response.status(401).json({ error: 'token missing or invalid' });
-        // }
-
-        //const user = await User.findById(decodedToken.id);
-
-        const user = await User.findOne({});
+        const user = await User.findById(decodedToken.id);
 
         const newBlog = new Blog({
             title: body.title,
@@ -70,8 +74,10 @@ blogsRouter.post('/', async (request, response, next) => {
             user: user._id
         });
         const savedBlog = await newBlog.save();
+
         user.blogs = user.blogs.concat(savedBlog._id);
         await user.save();
+
         response.status(201).json(savedBlog);
     } catch (exception) {
         next(exception);

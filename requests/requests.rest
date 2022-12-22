@@ -24,13 +24,13 @@ content-type: application/json
 
 POST http://localhost:3003/api/blogs
 content-type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1hdGVvYXAwMCIsImlkIjoiNjNhMzVlMDI5MWE1MmNhNjM2NGU1ZTEyIiwiaWF0IjoxNjcxNjcwNjY1fQ.q9NPmBzP1Nm-5ixuS1a_yZlEYV_CZPJmAtVT8nMolOQ
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1hdGVvYXAwMCIsImlkIjoiNjNhNDg2YmE0NjYwZDJiYTNiOWE4MGIyIiwiaWF0IjoxNjcxNzI4MTI2fQ.wsHAH-YcitmPL4kBoESkirQhZ4-0kWZStwS-PrNn-5M
 
 {
-    "title": "4th Blog by user, with token authentication",
-    "author": "mateoap00",
-    "url": "www.blog2nd.com",
-    "likes": "15"
+    "title": "Blog by user, with token authentication",
+    "author": "Mateo Astudillo",
+    "url": "www.blogAuthorized.com",
+    "likes": "5"
 }
 
 ###
