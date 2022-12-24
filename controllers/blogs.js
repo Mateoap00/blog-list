@@ -36,8 +36,6 @@
 const blogsRouter = require('express').Router();
 const Blog = require('../models/blog');
 const middleware = require('../utils/middleware');
-//const User = require('../models/user');
-//const jwt = require('jsonwebtoken');
 
 
 // Blogs routes
@@ -120,7 +118,6 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response, n
 blogsRouter.put('/:id', async (request, response, next) => {
     const { title, author, url, likes } = request.body;
 
-    //const opt = { new: true, runValidators: true, context: 'query' };
     try {
         const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, { title, author, url, likes }, { new: true });
         if (!updatedBlog) {

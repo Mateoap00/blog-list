@@ -9,8 +9,6 @@
     already registered in the db). Also I wrote a validator in the User model so it checks that the username has only letters
     and numbers. I wrote jest tests for all of this cases and for when the user is created and saved successfully.
     (Check also files models/user.js and tests/users_api.test.js).
-
-    TO-DO: Exercises 4.17 - 4.23.
 */
 
 const bcrypt = require('bcrypt');

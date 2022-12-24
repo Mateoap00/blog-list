@@ -28,13 +28,22 @@
     of a non existing blog or if the id is invalid, then the proper status code is send. I refactored the delete and put route handlers
     to use the syntax async/await and all the tests were organized in groups based on the logic that the test is checking (initial state
     of the test database, get, post, delete and update requests).
+
+    Exercise 4.23*: For this exercise I refactored all the post and delete request tests so now they work with token authentication, also
+    I wrote in the beforeEach() part of this test suit that a new root user is created and saved in the database, also all the blogs that
+    are in the helper.initialBlogs get saved to the db with post requests instead of directly saving it with the mongoose model. To
+    generate the tokens for the post and delete tests I'm using a helper function that logs in as the root user and returns the generated
+    token. Lastly I added two tests that verify that a blog can't be posted or deleted if the authentication token is invalid.
+    (Check also files tests/test_helper.js).
 */
 
 const mongoose = require('mongoose');
 const supertest = require('supertest');
 const Blog = require('../models/blog');
+const User = require('../models/user');
 const app = require('../app');
 const helper = require('./test_helper');
+const bcrypt = require('bcrypt');
 
 const api = supertest(app);
 
@@ -42,10 +51,16 @@ jest.setTimeout(10000);
 
 beforeEach(async () => {
     await Blog.deleteMany({});
+    await User.deleteMany({});
+
+    const passwordHash = await bcrypt.hash('sekret', 10);
+    const user = new User({ username: 'rootUser', name: 'Root User', passwordHash });
+    await user.save();
 
     for (let blog of helper.initialBlogs) {
-        let blogObject = new Blog(blog);
-        await blogObject.save();
+        await api.post('/api/blogs')
+            .set('Authorization', await helper.generateAuthHeader())
+            .send(blog);
     }
 });
 
@@ -111,41 +126,50 @@ describe('Viewing a specific blog', () => {
 });
 
 describe('Adding a new blog', () => {
-    test('A new blog can be added with HTTP POST request (201)', async () => {
+    test('A new blog can be added with HTTP POST request if authorized (201)', async () => {
         const newBlog = {
             title: 'Blog test 4',
             author: 'Pablo',
             url: 'www.blogtest4.com',
             likes: 5
         };
-        await api.post('/api/blogs').send(newBlog)
+
+        await api.post('/api/blogs')
+            .set('Authorization', await helper.generateAuthHeader())
+            .send(newBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/);
+
         const blogsAtEnd = await helper.blogsInDb();
         expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1);
-        const newBlogId = blogsAtEnd[helper.initialBlogs.length].id;
-        expect(blogsAtEnd).toContainEqual({ ...newBlog, id: newBlogId });
+        const titles = blogsAtEnd.map(b => b.title);
+        expect(titles).toContain('Blog test 4');
     });
 
-    test('A new blog without a likes property has 0 likes by default when a HTTP POST request is made (201)', async () => {
+    test('A new blog without a likes property has 0 likes by default when a authorized HTTP POST request is made (201)', async () => {
         const newBlog = {
             title: 'Blog test 5',
             author: 'Mateo',
             url: 'www.blogtest5.com'
         };
-        const response = await api.post('/api/blogs').send(newBlog)
+
+        const blogAdded = await api.post('/api/blogs')
+            .set('Authorization', await helper.generateAuthHeader())
+            .send(newBlog)
             .expect(201)
             .expect('Content-Type', /application\/json/);
-        expect(response.body.likes).toEqual(0);
+
+        expect(blogAdded.body.likes).toEqual(0);
     });
 
-    test('A blog without title or url is not added when making a HTTP POST request (400)', async () => {
+    test('A blog without title or url is not added when making a authorized HTTP POST request (400)', async () => {
         let newBlog = {
             author: 'Luis',
             url: 'www.blogtest6.com',
             likes: 2
         };
         await api.post('/api/blogs')
+            .set('Authorization', await helper.generateAuthHeader())
             .send(newBlog)
             .expect(400);
         let blogsAtEnd = await helper.blogsInDb();
@@ -156,23 +180,37 @@ describe('Adding a new blog', () => {
             author: 'Melina',
             likes: 10
         };
-        await api
-            .post('/api/blogs')
+        await api.post('/api/blogs')
+            .set('Authorization', await helper.generateAuthHeader())
             .send(newBlog)
             .expect(400);
         blogsAtEnd = await helper.blogsInDb();
         expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
     });
 
+    test('A blog is not added when making a HTTP POST request if an authorized token is not provided (401)', async () => {
+        const newBlog = {
+            title: 'Blog test that won\'t be added',
+            author: 'Pablo',
+            url: 'www.falseblogtest.com',
+            likes: 10
+        };
+        await api.post('/api/blogs')
+            .send(newBlog)
+            .expect(401);
+        const blogsAtEnd = await helper.blogsInDb();
+        expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
+    });
+
 });
 
 describe('Deleting a blog', () => {
-    test('A blog can be deleted (204)', async () => {
+    test('A blog can be deleted if an authorized token is provided (204)', async () => {
         const blogsAtStart = await helper.blogsInDb();
         const blogToDelete = blogsAtStart[0];
 
-        await api
-            .delete(`/api/blogs/${blogToDelete.id}`)
+        await api.delete(`/api/blogs/${blogToDelete.id}`)
+            .set('Authorization', await helper.generateAuthHeader())
             .expect(204);
 
         const blogsAtEnd = await helper.blogsInDb();
@@ -188,14 +226,33 @@ describe('Deleting a blog', () => {
         const nonExistingId = await helper.nonExistingId();
 
         await api.delete(`/api/blogs/${nonExistingId}`)
+            .set('Authorization', await helper.generateAuthHeader())
             .expect(404);
+
+        const blogsAtEnd = await helper.blogsInDb();
+        expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
     });
 
     test('Fails to delete with a invalid id (400)', async () => {
         const falseID = '5a3d5da59070081a82a3445';
         await api
             .delete(`/api/blogs/${falseID}`)
+            .set('Authorization', await helper.generateAuthHeader())
             .expect(400);
+
+        const blogsAtEnd = await helper.blogsInDb();
+        expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
+    });
+
+    test('Fails to delete if an authorized token is not provided (401)', async () => {
+        const blogsAtStart = await helper.blogsInDb();
+        const blogToDelete = blogsAtStart[0];
+
+        await api.delete(`/api/blogs/${blogToDelete.id}`)
+            .expect(401);
+
+        const blogsAtEnd = await helper.blogsInDb();
+        expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
     });
 
 });
