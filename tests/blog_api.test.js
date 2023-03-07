@@ -267,10 +267,12 @@ describe('Updating a blog', () => {
             author: 'Mateo',
             url: 'www.blogtest1.0.com',
             likes: 20,
+            user: blogToUpdate.user
         };
 
         await api
             .put(`/api/blogs/${blogToUpdate.id}`)
+            .set('Authorization', await helper.generateAuthHeader())
             .send(toUpdateWith)
             .expect(200);
 
@@ -293,6 +295,7 @@ describe('Updating a blog', () => {
         };
 
         await api.put(`/api/blogs/${nonExistingId}`)
+            .set('Authorization', await helper.generateAuthHeader())
             .send(toUpdateWith)
             .expect(404);
 
@@ -311,6 +314,7 @@ describe('Updating a blog', () => {
         };
 
         await api.put(`/api/blogs/${falseID}`)
+            .set('Authorization', await helper.generateAuthHeader())
             .send(toUpdateWith)
             .expect(400);
 
@@ -318,7 +322,6 @@ describe('Updating a blog', () => {
         const titles = blogsAtEnd.map(blog => blog.title);
         expect(titles).not.toContain(toUpdateWith.title);
     });
-
 });
 
 afterAll(() => {
