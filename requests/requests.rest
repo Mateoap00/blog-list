@@ -50,5 +50,16 @@ DELETE http://localhost:3003/api/blogs/63a4e8aba2a4523bda54e65f
 content-type: application/json
 Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiI2M2E0ZTdjYjU5NDQ3ZTlmZDJmZjhmOGEiLCJpYXQiOjE2NzE3NTE2NzN9.p09jhPW8TgwzODAlHvKAS6wnH1FK1DfaA9reTifvZ4s
 
-###
+### Update a blog by Mateo
+
+PUT http://localhost:3003/api/blogs/63a4ecbaa3c370fbc29ddafe
+content-type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWQiOiI2M2E0ZTdjYjU5NDQ3ZTlmZDJmZjhmOGEiLCJpYXQiOjE2NzM5MTA4MTF9.2gNGPZIqmUnWpmy27ofY2gRHUkotMcsxWLF4Mj6Zp74
+
+{
+    "title": "Blog updated by Mateo",
+    "author": "Mateo Astudillo",
+    "url": "www.updated.com",
+    "likes": "3"
+}
 

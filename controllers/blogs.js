@@ -85,7 +85,8 @@ blogsRouter.post('/', middleware.userExtractor, async (request, response, next) 
         user.blogs = user.blogs.concat(savedBlog._id);
         await user.save();
 
-        response.status(201).json(savedBlog);
+        const resBlog = await Blog.findById(savedBlog._id).populate('user', { id: 1, username: 1, name: 1 });
+        response.status(201).json(resBlog);
     } catch (exception) {
         next(exception);
     }
@@ -115,16 +116,40 @@ blogsRouter.delete('/:id', middleware.userExtractor, async (request, response, n
     }
 });
 
-blogsRouter.put('/:id', async (request, response, next) => {
-    const { title, author, url, likes } = request.body;
-
+blogsRouter.put('/:id', middleware.userExtractor, async (request, response, next) => {
     try {
-        const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, { title, author, url, likes }, { new: true });
+        const { title, author, url, likes, user } = request.body;
+        if (request.user === null) {
+            return response.status(401).json({ error: 'Token missing or invalid' });
+        }
+
+        const blogToBeUpdated = await Blog.findById(request.params.id);
+        if (!blogToBeUpdated) {
+            return response.status(404).json({ error: 'Blog not found' });
+        }
+
+        //const loggedUser = request.user;
+        // if (blogToBeUpdated.user.toString() !== user._id.toString()) {
+        //     return response.status(401).json({ error: 'Wrong user logged in' });
+        // }
+        const updatedBlog = await Blog.findByIdAndUpdate(
+            request.params.id,
+            {
+                title,
+                author,
+                url,
+                likes,
+                user: user._id
+            },
+            { new: true }
+        ).populate('user', { id: 1, username: 1, name: 1 });
+
         if (!updatedBlog) {
             response.status(404).end();
-        } else {
-            response.status(200).json(updatedBlog);
         }
+
+        response.status(200).json(updatedBlog);
+
     } catch (exception) {
         next(exception);
     }
